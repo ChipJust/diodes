@@ -1,0 +1,331 @@
+* DIODE MODELS
+
+.model D1N4148 D(Is=0.1p Rs=16 CJO=2p Tt=12n Bv=100 Ibv=0.1p)
+* Anti-parallel Diodes D1N4148: 1 up 1 down
+.SUBCKT D_ANTI_D1N4148_1_1 1 2
+Dp      1   2   D1N4148
+Dn1     2   1   D1N4148
+.ENDS
+
+* Anti-parallel Diodes D1N4148: 1 up 2 down
+.SUBCKT D_ANTI_D1N4148_1_2 1 2
+Dp      1   2   D1N4148
+Dn1     2   3   D1N4148
+Dn2     3   1   D1N4148
+.ENDS
+
+* Anti-parallel Diodes D1N4148: 2 up 1 down
+.SUBCKT D_ANTI_D1N4148_2_1 2 1
+Dp      1   2   D1N4148
+Dn1     2   3   D1N4148
+Dn2     3   1   D1N4148
+.ENDS
+
+* Anti-parallel Diodes D1N4148: 1 up 3 down
+.SUBCKT D_ANTI_D1N4148_1_3 1 2
+Dp      1   2   D1N4148
+Dn1     2   3   D1N4148
+Dn2     3   4   D1N4148
+Dn3     4   1   D1N4148
+.ENDS
+
+* Anti-parallel Diodes D1N4148: 3 up 1 down
+.SUBCKT D_ANTI_D1N4148_3_1 2 1
+Dp      1   2   D1N4148
+Dn1     2   3   D1N4148
+Dn2     3   4   D1N4148
+Dn3     4   1   D1N4148
+.ENDS
+
+* Anti-parallel Diodes D1N4148: 1 up 4 down
+.SUBCKT D_ANTI_D1N4148_1_4 1 2
+Dp      1   2   D1N4148
+Dn1     2   3   D1N4148
+Dn2     3   4   D1N4148
+Dn3     4   5   D1N4148
+Dn4     5   1   D1N4148
+.ENDS
+
+* Anti-parallel Diodes D1N4148: 4 up 1 down
+.SUBCKT D_ANTI_D1N4148_4_1 2 1
+Dp      1   2   D1N4148
+Dn1     2   3   D1N4148
+Dn2     3   4   D1N4148
+Dn3     4   5   D1N4148
+Dn4     5   1   D1N4148
+.ENDS
+
+.MODEL 1N34A D(IS=2.6u RS=6.5 N=1.6 CJO=0.8p EG=0.67 BV=25 IBV=0.003)
+* Anti-parallel Diodes 1N34A: 1 up 1 down
+.SUBCKT D_ANTI_1N34A_1_1 1 2
+Dp      1   2   1N34A
+Dn1     2   1   1N34A
+.ENDS
+
+* Anti-parallel Diodes 1N34A: 1 up 2 down
+.SUBCKT D_ANTI_1N34A_1_2 1 2
+Dp      1   2   1N34A
+Dn1     2   3   1N34A
+Dn2     3   1   1N34A
+.ENDS
+
+* Anti-parallel Diodes 1N34A: 2 up 1 down
+.SUBCKT D_ANTI_1N34A_2_1 2 1
+Dp      1   2   1N34A
+Dn1     2   3   1N34A
+Dn2     3   1   1N34A
+.ENDS
+
+* Anti-parallel Diodes 1N34A: 1 up 3 down
+.SUBCKT D_ANTI_1N34A_1_3 1 2
+Dp      1   2   1N34A
+Dn1     2   3   1N34A
+Dn2     3   4   1N34A
+Dn3     4   1   1N34A
+.ENDS
+
+* Anti-parallel Diodes 1N34A: 3 up 1 down
+.SUBCKT D_ANTI_1N34A_3_1 2 1
+Dp      1   2   1N34A
+Dn1     2   3   1N34A
+Dn2     3   4   1N34A
+Dn3     4   1   1N34A
+.ENDS
+
+* Anti-parallel Diodes 1N34A: 1 up 4 down
+.SUBCKT D_ANTI_1N34A_1_4 1 2
+Dp      1   2   1N34A
+Dn1     2   3   1N34A
+Dn2     3   4   1N34A
+Dn3     4   5   1N34A
+Dn4     5   1   1N34A
+.ENDS
+
+* Anti-parallel Diodes 1N34A: 4 up 1 down
+.SUBCKT D_ANTI_1N34A_4_1 2 1
+Dp      1   2   1N34A
+Dn1     2   3   1N34A
+Dn2     3   4   1N34A
+Dn3     4   5   1N34A
+Dn4     5   1   1N34A
+.ENDS
+
+.model 1N5818 D(Is=31.7u Rs=.051 N=1.373 Cjo=160p M=.38 Eg=.69 Xti=2 Iave=1 Vpk=30)
+* Anti-parallel Diodes 1N5818: 1 up 1 down
+.SUBCKT D_ANTI_1N5818_1_1 1 2
+Dp      1   2   1N5818
+Dn1     2   1   1N5818
+.ENDS
+
+* Anti-parallel Diodes 1N5818: 1 up 2 down
+.SUBCKT D_ANTI_1N5818_1_2 1 2
+Dp      1   2   1N5818
+Dn1     2   3   1N5818
+Dn2     3   1   1N5818
+.ENDS
+
+* Anti-parallel Diodes 1N5818: 2 up 1 down
+.SUBCKT D_ANTI_1N5818_2_1 2 1
+Dp      1   2   1N5818
+Dn1     2   3   1N5818
+Dn2     3   1   1N5818
+.ENDS
+
+* Anti-parallel Diodes 1N5818: 1 up 3 down
+.SUBCKT D_ANTI_1N5818_1_3 1 2
+Dp      1   2   1N5818
+Dn1     2   3   1N5818
+Dn2     3   4   1N5818
+Dn3     4   1   1N5818
+.ENDS
+
+* Anti-parallel Diodes 1N5818: 3 up 1 down
+.SUBCKT D_ANTI_1N5818_3_1 2 1
+Dp      1   2   1N5818
+Dn1     2   3   1N5818
+Dn2     3   4   1N5818
+Dn3     4   1   1N5818
+.ENDS
+
+* Anti-parallel Diodes 1N5818: 1 up 4 down
+.SUBCKT D_ANTI_1N5818_1_4 1 2
+Dp      1   2   1N5818
+Dn1     2   3   1N5818
+Dn2     3   4   1N5818
+Dn3     4   5   1N5818
+Dn4     5   1   1N5818
+.ENDS
+
+* Anti-parallel Diodes 1N5818: 4 up 1 down
+.SUBCKT D_ANTI_1N5818_4_1 2 1
+Dp      1   2   1N5818
+Dn1     2   3   1N5818
+Dn2     3   4   1N5818
+Dn3     4   5   1N5818
+Dn4     5   1   1N5818
+.ENDS
+
+*SRC=BAS40BRW;DI_BAS40BRW;Diodes;Si;  40.0V  0.200A  5.00ns   Diodes Inc. Schottky diode, Quad, one node of four
+.MODEL DI_BAS40BRW D  ( IS=6.12u RS=0.120 BV=40.0 IBV=200n 
++ CJO=5.00p  M=0.333 N=2.61 TT=7.20n )
+* Anti-parallel Diodes DI_BAS40BRW: 1 up 1 down
+.SUBCKT D_ANTI_DI_BAS40BRW_1_1 1 2
+Dp      1   2   DI_BAS40BRW
+Dn1     2   1   DI_BAS40BRW
+.ENDS
+
+* Anti-parallel Diodes DI_BAS40BRW: 1 up 2 down
+.SUBCKT D_ANTI_DI_BAS40BRW_1_2 1 2
+Dp      1   2   DI_BAS40BRW
+Dn1     2   3   DI_BAS40BRW
+Dn2     3   1   DI_BAS40BRW
+.ENDS
+
+* Anti-parallel Diodes DI_BAS40BRW: 2 up 1 down
+.SUBCKT D_ANTI_DI_BAS40BRW_2_1 2 1
+Dp      1   2   DI_BAS40BRW
+Dn1     2   3   DI_BAS40BRW
+Dn2     3   1   DI_BAS40BRW
+.ENDS
+
+* Anti-parallel Diodes DI_BAS40BRW: 1 up 3 down
+.SUBCKT D_ANTI_DI_BAS40BRW_1_3 1 2
+Dp      1   2   DI_BAS40BRW
+Dn1     2   3   DI_BAS40BRW
+Dn2     3   4   DI_BAS40BRW
+Dn3     4   1   DI_BAS40BRW
+.ENDS
+
+* Anti-parallel Diodes DI_BAS40BRW: 3 up 1 down
+.SUBCKT D_ANTI_DI_BAS40BRW_3_1 2 1
+Dp      1   2   DI_BAS40BRW
+Dn1     2   3   DI_BAS40BRW
+Dn2     3   4   DI_BAS40BRW
+Dn3     4   1   DI_BAS40BRW
+.ENDS
+
+* Anti-parallel Diodes DI_BAS40BRW: 1 up 4 down
+.SUBCKT D_ANTI_DI_BAS40BRW_1_4 1 2
+Dp      1   2   DI_BAS40BRW
+Dn1     2   3   DI_BAS40BRW
+Dn2     3   4   DI_BAS40BRW
+Dn3     4   5   DI_BAS40BRW
+Dn4     5   1   DI_BAS40BRW
+.ENDS
+
+* Anti-parallel Diodes DI_BAS40BRW: 4 up 1 down
+.SUBCKT D_ANTI_DI_BAS40BRW_4_1 2 1
+Dp      1   2   DI_BAS40BRW
+Dn1     2   3   DI_BAS40BRW
+Dn2     3   4   DI_BAS40BRW
+Dn3     4   5   DI_BAS40BRW
+Dn4     5   1   DI_BAS40BRW
+.ENDS
+
+*ZETEX ZLLS2000 Spice Model v2.0 Last revision 25/05/2007
+    *
+    *This simple model has limitations with respect to temperature
+    *for best fit of forward characteristitics with temperature EG=0.63
+    *for best fit of reverse characteristitics with temperature EG=0.85
+    *
+    .MODEL ZLLS2000 D IS=2.7e-6 N=1.03 ISR=4.5E-6 NR=2 IKF=1.3 BV=56 IBV=1E-3
+    +RS=0.07 TT=6e-9 CJO=265e-12 VJ=0.6 M=0.34 EG=0.63 XTI=2 TRS1=4e-3
+    *
+    *$
+    *
+* Anti-parallel Diodes ZLLS2000: 1 up 1 down
+.SUBCKT D_ANTI_ZLLS2000_1_1 1 2
+Dp      1   2   ZLLS2000
+Dn1     2   1   ZLLS2000
+.ENDS
+
+* Anti-parallel Diodes ZLLS2000: 1 up 2 down
+.SUBCKT D_ANTI_ZLLS2000_1_2 1 2
+Dp      1   2   ZLLS2000
+Dn1     2   3   ZLLS2000
+Dn2     3   1   ZLLS2000
+.ENDS
+
+* Anti-parallel Diodes ZLLS2000: 1 up 3 down
+.SUBCKT D_ANTI_ZLLS2000_1_3 1 2
+Dp      1   2   ZLLS2000
+Dn1     2   3   ZLLS2000
+Dn2     3   4   ZLLS2000
+Dn3     4   1   ZLLS2000
+.ENDS
+
+* Anti-parallel Diodes ZLLS2000: 1 up 4 down
+.SUBCKT D_ANTI_ZLLS2000_1_4 1 2
+Dp      1   2   ZLLS2000
+Dn1     2   3   ZLLS2000
+Dn2     3   4   ZLLS2000
+Dn3     4   5   ZLLS2000
+Dn4     5   1   ZLLS2000
+.ENDS
+
+
+******subckt
+* Spice Model
+* Item: CFSH05-20L
+* Date: 04/22/13
+* Revision History: REV A
+*==========================================================
+* This model was developed by: 
+* Central Semiconductor Corp.
+* 145 Adams Avenue
+* Hauppauge, NY 11788
+*
+* These models are subject to change without notice.
+* Users may not directly or indirectly re-sell or 
+* re-distribute this model. This model may not 
+* be modified, or altered without the consent of Central Semiconductor Corp. 
+*
+* For more information on this model contact
+* Central Semiconductor Corp. at:
+* (631) 435-1110 or Engineering@centralsemi.com
+* http://www.centralsemi.com
+*==========================================================
+******
+*SRC=CFSH05-20L;CFSH05-20L;Diodes;Si;20V  0.5A  25ns  Central Semi Central Semi
+.MODEL CFSH05_20L D  ( IS=2.5548E-6
++ N=1.0276
++ RS=.20766
++ IKF=.3177
++ CJO=36.606E-12
++ M=.40119
++ VJ=.3905
++ ISR=1.9965E-6
++ NR=4.9950
++ BV=20.179
++ IBV=.51836
++ TT=36.067E-9 )
+******
+* Anti-parallel Diodes CFSH05_20L: 1 up 1 down
+.SUBCKT D_ANTI_CFSH05_20L_1_1 1 2
+Dp      1   2   CFSH05_20L
+Dn1     2   1   CFSH05_20L
+.ENDS
+
+* Anti-parallel Diodes CFSH05_20L: 1 up 2 down
+.SUBCKT D_ANTI_CFSH05_20L_1_2 1 2
+Dp      1   2   CFSH05_20L
+Dn1     2   3   CFSH05_20L
+Dn2     3   1   CFSH05_20L
+.ENDS
+
+* Anti-parallel Diodes CFSH05_20L: 1 up 3 down
+.SUBCKT D_ANTI_CFSH05_20L_1_3 1 2
+Dp      1   2   CFSH05_20L
+Dn1     2   3   CFSH05_20L
+Dn2     3   4   CFSH05_20L
+Dn3     4   1   CFSH05_20L
+.ENDS
+
+* Anti-parallel Diodes CFSH05_20L: 1 up 4 down
+.SUBCKT D_ANTI_CFSH05_20L_1_4 1 2
+Dp      1   2   CFSH05_20L
+Dn1     2   3   CFSH05_20L
+Dn2     3   4   CFSH05_20L
+Dn3     4   5   CFSH05_20L
+Dn4     5   1   CFSH05_20L
+.ENDS
