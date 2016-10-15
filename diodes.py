@@ -124,7 +124,6 @@ class SpiceDiode():
                 raise
     def __repr__(self):
         return "SpiceDiode(%s, %s)" % (self.name, " ".join(["%s=%s" % (p, getattr(self, p, None)) for p in self.spice_parameters]))
-    re_scientific_notation = re.compile("\s*(-?\d*\.?\d*E-?\d*)[AVFH]?\s*", re.I)
     re_scale_notation = re.compile("\s*(?P<number>-?\d*\.?\d*)(?P<scale>(?:t)|(?:g)|(?:x)|(?:meg)|(?:k)|(?:m)|(?:u)|(?:n)|(?:p)|(?:f))[AVFH]?\s*", re.I)
     re_unit = re.compile("\s*(?P<number>-?\d*\.?\d*)[AVFH]?\s*", re.I)
     scales = {
@@ -139,6 +138,7 @@ class SpiceDiode():
         'p' : -12,
         'f' : -15
     }
+    re_scientific_notation = re.compile("\s*(-?\d*\.?\d*E[-+]?\d*)[AVFH]?\s*", re.I)
     def float(self, x):
         """
         Return a float from a string, may have units, scientific notation or scale factors
@@ -173,10 +173,15 @@ class SpiceDiode():
         Return a list of SpiceDiode objects from the file-like object f.
         """
         l = []
-        for line in SpiceDiode.preparse(f):
+        linenum = 0
+        for line, linenum in SpiceDiode.preparse(f):
             m = SpiceDiode.re_model_d.match(line)
             if m:
-                l.append(SpiceDiode(m.group('name'), m.group('parameters')))
+                try:
+                    l.append(SpiceDiode(m.group('name'), m.group('parameters')))
+                except ValueError:
+                    print ("Error parsing line %d." % linenum)
+                    raise
         return l
     re_continue_line = re.compile("^\s*\+(?P<content>.*)")
     @staticmethod
@@ -185,16 +190,24 @@ class SpiceDiode():
         Join continued lines. Yield one full line at a time.
         """
         last_line = ""
+        linenum = 0
         for line in f:
+            linenum += 1
             m = SpiceDiode.re_continue_line.match(line)
             if m:
                 last_line += m.group('content')
                 continue
             if last_line:
-                yield last_line
+                yield last_line, linenum
             last_line = line
         if last_line:
-            yield last_line
+            yield last_line, linenum
+    @staticmethod
+    def thermal_voltage(tempurature=300):
+        return tempurature*8.6173324e-5
+    def forward_voltage(self, current):
+        return self.N*self.thermal_voltage()*math.log((current/self.IS)-1)
+        
 
 test_data = [
 ".model KD203B D(Is=303.3f Rs=30.57m N=1 Xti=3 Eg=1.11 Bv=799.9v Ibv=7.607u Cjo=21.2p Vj=.73 M=.28 Fc=.5 Tt=9.09e-7 mfg=USSR type=silicon)\n",
@@ -208,14 +221,17 @@ test_data = [
 ".model APT1608SURCK d(IS=2.01E-17 N=2.139 RS=2 m=0.431 Vj=2.32 Cjo=35pF IBV=10u BV=5 EG=2.26 XTI=3 Iave=30mA Vpk=5 mfg=Kingbright type=LED)\n",
 ".MODEL UF4007 D N=3.97671 IS=3.28772u RS=0.149734 EG=1.11 XTI=3 CJO=2.92655E-011 VJ=0.851862 M=0.334552 FC=0.5 TT=1.84973E-007 BV=1000 IBV=0.2 Iave=1 Vpk=1000 type=silicon\n",
 ".Model BYW96E D(IS=59.77971E-6 N=3.61403 RS=52.308E-3 IKF=0.566356 CJO=27.010E-12 M=.43978 VJ=.81612 ISR=447.9139E-9 NR=2.54303 BV=1.2003E3 IBV=2.5910 TT=295.54E-9 Iave=3 Vpk=1000 mfg=Philips type=Silicon)\n",
+".MODEL DSUB D IS = 3.162E-009 N = 1.241 RS = 0.08353 BV = 1E+006 CJO = 5.653E-011 VJ = 0.008286 M = 0.1128",
 ]
 
 def main():
-    with open (r"E:\eda\diodes.cir") as f:
-        diodes = SpiceDiode.parse(f)
+    #with open (r"E:\eda\diodes\diodes-inc.txt") as f:
+    #    diodes = SpiceDiode.parse(f)
+    diodes = SpiceDiode.parse(test_data)
     
-    #for diode in diodes:
-    #    print (diode)
+    for diode in diodes:
+        print (diode)
+        print ("{model:<10}{Vf1mA}".format(model=diode.name, Vf1mA=diode.forward_voltage(.001)))
 
 if __name__ == "__main__":
     main()
