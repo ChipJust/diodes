@@ -37,8 +37,8 @@ XTI     IS temperature exponent                         -       3.0
 KF      Flicker noise coefficient                       -       0
 AF      Flicker noise exponent                          -       1
 
-NR
-ISR
+NR      Emission coefficient for ISR                    no unit 2.0
+ISR     Recombination current parameter
 -- LT Spice Power Parameters --
 VPK     Peak voltage rating
 IPK     Peak current rating
@@ -61,8 +61,10 @@ class SpiceDiode():
         "IK"    :   1E-3,
         "IKR"   :   1E-3,
         "IS"    :   1E-14,
+        "ISR"   :   0,
         "JSW"   :   1e-14,
         "N"     :   1,
+        "NR"    :   2,
         "RS"    :   0,
         "CJO"   :   0,
         "CJP"   :   0,
@@ -97,8 +99,9 @@ class SpiceDiode():
         "PB"    :   "VJ",
         "TREF"  :   "TNOM",
     }
-    def __init__(self, name, parameters):
+    def __init__(self, name, parameters, linenum=0):
         self.name=name
+        self.linenum = linenum
         # Set defaults
         for p, v in self.spice_parameters.items():
             setattr(self, p, v)
@@ -167,25 +170,31 @@ class SpiceDiode():
             return float(m.group('number'))
         return float(x)
     re_model_d = re.compile("^\s*.model\s+(?P<name>\S+)\s+D\s*[\( ]\s*(?P<parameters>[^\)]*?)\s*\)?$", re.I)
-    @staticmethod
-    def parse(f):
+    @classmethod
+    def parse(cls, f):
         """
         Return a list of SpiceDiode objects from the file-like object f.
+        If a string is passed, this function will treat it as a file path
+        and attempt to open it.
         """
-        l = []
+        if isinstance(f, str):
+            _f = open (f)
+        else:
+            _f = f
         linenum = 0
-        for line, linenum in SpiceDiode.preparse(f):
-            m = SpiceDiode.re_model_d.match(line)
+        for line, linenum in cls.preparse(_f):
+            m = cls.re_model_d.match(line)
             if m:
                 try:
-                    l.append(SpiceDiode(m.group('name'), m.group('parameters')))
+                    yield cls(m.group('name'), m.group('parameters'), linenum)
                 except ValueError:
                     print ("Error parsing line %d." % linenum)
                     raise
-        return l
+        if isinstance(f, str):
+            _f.close()
     re_continue_line = re.compile("^\s*\+(?P<content>.*)")
-    @staticmethod
-    def preparse(f):
+    @classmethod
+    def preparse(cls, f):
         """
         Join continued lines. Yield one full line at a time.
         """
@@ -193,12 +202,12 @@ class SpiceDiode():
         linenum = 0
         for line in f:
             linenum += 1
-            m = SpiceDiode.re_continue_line.match(line)
+            m = cls.re_continue_line.match(line)
             if m:
                 last_line += m.group('content')
                 continue
             if last_line:
-                yield last_line, linenum
+                yield last_line, linenum-1
             last_line = line
         if last_line:
             yield last_line, linenum
@@ -225,13 +234,16 @@ test_data = [
 ]
 
 def main():
-    #with open (r"E:\eda\diodes\diodes-inc.txt") as f:
-    #    diodes = SpiceDiode.parse(f)
-    diodes = SpiceDiode.parse(test_data)
+    #diodes = [diode for diode in SpiceDiode.parse(r"E:\eda\diodes\diodes-inc.txt")]
+    diodes = [diode for diode in SpiceDiode.parse(test_data)]
     
     for diode in diodes:
-        print (diode)
-        print ("{model:<10}{Vf1mA}".format(model=diode.name, Vf1mA=diode.forward_voltage(.001)))
+        #print (diode)
+        print ("{linenum:<8}{model:<16}{Vf1mA:.3f}     {N}".format(
+            linenum=diode.linenum,
+            model=diode.name,
+            Vf1mA=diode.forward_voltage(.001),
+            N=diode.N))
 
 if __name__ == "__main__":
     main()
