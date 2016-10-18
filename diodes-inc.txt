@@ -37485,7 +37485,7 @@ ZXMC10A816N8*DIODES_INC_SPICE_MODEL ZXMC10A816N8
 *DATE=17Sep2014
 *VERSION=1
 
-** Imported from: C:UserssuppuluriDesktopXMC10A816N8XMC10A816.txt
+** Imported from: C:UserssuppuluriDesktop?XMC10A816N8?XMC10A816.txt
 
 ** PINS: 1=S1 , 2=G1, 3=S2, 4=G2, 5=D21, 6=D22, 7=D11, 8=D12
 

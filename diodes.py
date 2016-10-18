@@ -127,6 +127,15 @@ class SpiceDiode():
                 raise
     def __repr__(self):
         return "SpiceDiode(%s, %s)" % (self.name, " ".join(["%s=%s" % (p, getattr(self, p, None)) for p in self.spice_parameters]))
+    def __str__(self):
+        parameters = ", ".join(
+            ["{parameter} = {value}".format(
+                parameter=p,
+                value=getattr(self, p))
+             for p in self.spice_parameters if self.spice_parameters[p] != getattr(self, p)])
+        return ".MODEL {name} D  ({parameters})".format(
+            name=self.name,
+            parameters=parameters)
     re_scale_notation = re.compile("\s*(?P<number>-?\d*\.?\d*)(?P<scale>(?:t)|(?:g)|(?:x)|(?:meg)|(?:k)|(?:m)|(?:u)|(?:n)|(?:p)|(?:f))[AVFH]?\s*", re.I)
     re_unit = re.compile("\s*(?P<number>-?\d*\.?\d*)[AVFH]?\s*", re.I)
     scales = {
@@ -169,9 +178,11 @@ class SpiceDiode():
         if m:
             return float(m.group('number'))
         return float(x)
-    re_model_d = re.compile("^\s*.model\s+(?P<name>\S+)\s+D\s*[\( ]\s*(?P<parameters>[^\)]*?)\s*\)?$", re.I)
+    re_model_d = re.compile("^\s*\.model\s+(?P<name>\S+)\s+D\s*[\( ]\s*(?P<parameters>[^\)]*?)\s*\)?$", re.I)
+    re_subckt = re.compile("^\s*\.SUBCKT\s+(?P<name>\S+)\s+(?P<nodes>.+)", re.I)
+    re_ends = re.compile("^\s*\.ENDS.*", re.I)
     @classmethod
-    def parse(cls, f):
+    def parse(cls, f, skip_subckt=True):
         """
         Return a list of SpiceDiode objects from the file-like object f.
         If a string is passed, this function will treat it as a file path
@@ -181,8 +192,20 @@ class SpiceDiode():
             _f = open (f)
         else:
             _f = f
-        linenum = 0
+        in_subckt = False
         for line, linenum in cls.preparse(_f):
+            if skip_subckt:
+                if in_subckt: # this will not handle nested subckts
+                    m = cls.re_ends.match(line)
+                    if m:
+                        in_subckt = False
+                        #print ("{linenum:<8}{match}".format(linenum=linenum, match=m.group(0)))
+                    continue
+                m = cls.re_subckt.match(line)
+                if m:
+                    in_subckt = True
+                    #print ("{linenum:<8}{name:<16}{nodes}".format(linenum=linenum, name=m.group('name'), nodes=m.group('nodes')))
+                    continue
             m = cls.re_model_d.match(line)
             if m:
                 try:
@@ -215,35 +238,25 @@ class SpiceDiode():
     def thermal_voltage(tempurature=300):
         return tempurature*8.6173324e-5
     def forward_voltage(self, current):
-        return self.N*self.thermal_voltage()*math.log((current/self.IS)-1)
+        try:
+            return self.N*self.thermal_voltage()*math.log((current/self.IS)-1)
+        except ValueError as e:
+            # if (current/self.IS) <= 1 we will get a domain error. Many models assume we dropped this -1.
+            return self.N*self.thermal_voltage()*math.log((current/self.IS))
         
 
-test_data = [
-".model KD203B D(Is=303.3f Rs=30.57m N=1 Xti=3 Eg=1.11 Bv=799.9v Ibv=7.607u Cjo=21.2p Vj=.73 M=.28 Fc=.5 Tt=9.09e-7 mfg=USSR type=silicon)\n",
-".model KD203V D(Is=268.8f Rs=14.95m N=1 Xti=3 Eg=1.11 Bv=799.9 Ibv=7.607u Cjo=21.2p Vj=.73 M=.28 Fc=.5 Tt=9.09e-7 mfg=USSR type=silicon)\n",
-".model KD203G D(Is=303.3f Rs=30.57m N=1 Xti=3 Eg=1.11 Bv=999.9 Ibv=7.607u Cjo=21.2p Vj=.73 M=.28 Fc=.5 Tt=9.09e-7 mfg=USSR type=silicon)\n",
-"    .model KD203D D(Is=268.8f Rs=14.95m N=1 Xti=3 Eg=1.11 Bv=999.9 Ibv=7.607u Cjo=21.2p Vj=.73 M=.28 Fc=.5 Tt=9.09e-7 mfg=USSR type=silicon)\n",
-" .Model KD204A D(Is=4.110n N=1.52 Rs=7.5e-2 Cjo=31.5p Tt=1.16e-7 M=0.35 Vj=0.68 Fc=0.5 Bv=400 IBv=1e-10 Eg=1.11 Xti=3 mfg=USSR type=silicon )\n",
-".MODEL DF D ( IS=6.18p RS=29.6 N=1.10\n",
-"+ CJO=20.1p VJ=1.00 M=0.330 TT=50.1n )\n",
-".model SS24 D(Is=.4mA Rs=.016 N=2.1 Cjo=800p Eg=.69 Xti=2 Iave=2 Vpk=40 mfg=Fairchild type=Schottky)\n",
-".model APT1608SURCK d(IS=2.01E-17 N=2.139 RS=2 m=0.431 Vj=2.32 Cjo=35pF IBV=10u BV=5 EG=2.26 XTI=3 Iave=30mA Vpk=5 mfg=Kingbright type=LED)\n",
-".MODEL UF4007 D N=3.97671 IS=3.28772u RS=0.149734 EG=1.11 XTI=3 CJO=2.92655E-011 VJ=0.851862 M=0.334552 FC=0.5 TT=1.84973E-007 BV=1000 IBV=0.2 Iave=1 Vpk=1000 type=silicon\n",
-".Model BYW96E D(IS=59.77971E-6 N=3.61403 RS=52.308E-3 IKF=0.566356 CJO=27.010E-12 M=.43978 VJ=.81612 ISR=447.9139E-9 NR=2.54303 BV=1.2003E3 IBV=2.5910 TT=295.54E-9 Iave=3 Vpk=1000 mfg=Philips type=Silicon)\n",
-".MODEL DSUB D IS = 3.162E-009 N = 1.241 RS = 0.08353 BV = 1E+006 CJO = 5.653E-011 VJ = 0.008286 M = 0.1128",
-]
-
 def main():
-    #diodes = [diode for diode in SpiceDiode.parse(r"E:\eda\diodes\diodes-inc.txt")]
-    diodes = [diode for diode in SpiceDiode.parse(test_data)]
+    diodes = [diode for diode in SpiceDiode.parse(r"E:\eda\diodes\diodes-inc.txt")]
+    #diodes = [diode for diode in SpiceDiode.parse(r"E:\eda\diodes\test-data.txt")]
     
     for diode in diodes:
-        #print (diode)
-        print ("{linenum:<8}{model:<16}{Vf1mA:.3f}     {N}".format(
+        Vf1mA=diode.forward_voltage(.001)
+        print ("{linenum:<8}{model:<16}Vf1mA={Vf1mA:.3f}     N={N}".format(
             linenum=diode.linenum,
             model=diode.name,
-            Vf1mA=diode.forward_voltage(.001),
+            Vf1mA=Vf1mA,
             N=diode.N))
+    print (len(diodes))
 
 if __name__ == "__main__":
     main()
