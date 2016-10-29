@@ -247,13 +247,13 @@ class SpiceDiode():
 
 class AntiParallelDiodes():
     subckt_string = """
-.SUBCKT {name} 1 {neg_node}
-Rf      1   2   {resistance}
+.SUBCKT {name} {pos_node} {mid_node} {neg_node}
 {diodes}
+Rf      {mid_node:<3} {neg_node:<3} {resistance}
 .ENDS"""
     doide_string = "D{i:<6} {anode:<3} {cathode:<3} {model}"
-    line_string = "X{line_name:<6} {positive_node:<6} {negative_node:<6} {name}"
-    def __init__(self, positive, negative, resistance=0, name=None):
+    line_string = "X{line_name:<6} {positive_node:<7} {middle_node:<7} {negative_node:<7} {name}"
+    def __init__(self, positive, negative, resistance=0):
         self.resistance = resistance
         # Checking for '__iter__' to identify list vs string. String won't have this attribute.
         if hasattr(positive, '__iter__'):
@@ -264,14 +264,11 @@ Rf      1   2   {resistance}
             self.negative = list(negative)
         else:
             self.negative = [negative]
-        if name:
-            self.name = name
-        else:
-            self.name = "D_ANTI__{positve}__{negative}__{resistance}".format(
-                positve = "_".join(self.positive),
-                negative = "_".join(self.negative),
-                resistance = self.resistance
-            )
+        self.name = "D_ANTI__{positve}__{negative}__{resistance}".format(
+            positve = "_".join(self.positive),
+            negative = "_".join(self.negative),
+            resistance = self.resistance
+        )
     def __repr__(self):
         return "AntiParallelDiodes(positive = [{positive}], negative = [{negative}], resistance = {resistance}, name = {name})".format (
             positive = ", ".join(self.positive),
@@ -279,10 +276,17 @@ Rf      1   2   {resistance}
             resistance = self.resistance,
             name = self.name
         )
-    def line(self, line_name, positive_node, negative_node):
+    def __eq__(self, other):
+        return self.name == other.name
+    def __ne__(self, other):
+        return not self.__eq__(other)
+    def __hash__(self):
+        return hash(self.name)
+    def node(self, line_name, positive_node, middle_node, negative_node):
         return self.line_string.format(
             line_name = line_name,
             positive_node = positive_node,
+            middle_node = middle_node,
             negative_node = negative_node,
             name = self.name
         )
@@ -290,15 +294,22 @@ Rf      1   2   {resistance}
         """Return the string for the subckt for this anit-parallel circuit."""
         return self.subckt_string.format(
             name = self.name,
-            neg_node = len(self.positive) + 2,
+            pos_node = 1,
+            mid_node = len(self.positive) + 1,
+            neg_node = len(self.positive) + len(self.negative) + 2,
             resistance = self.resistance,
             diodes = "\n".join([self.doide_string.format(
-                i = i + 2,
-                anode = i + 2,
-                cathode = i + 3 if i + 1 < len(self.positive + self.negative) else 2,
+                i = i + 1,
+                anode = i + 1,
+                cathode = i + 2 if i + 1 < len(self.positive + self.negative) else 1,
                 model = model
             ) for i, model in enumerate(self.positive + self.negative) ])
         )
+    def diodes(self):
+        for diode in self.positive:
+            yield diode
+        for diode in self.negative:
+            yield diode
 
 def main():
     diodes = [diode for diode in SpiceDiode.parse(r"E:\eda\diodes\diodes-inc.txt")]
