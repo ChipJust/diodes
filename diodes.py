@@ -317,7 +317,7 @@ def main():
     
     for diode in diodes:
         Vf1mA=diode.forward_voltage(.001)
-        print ("{linenum:<8}{model:<16}Vf1mA={Vf1mA:.3f}     N={N}".format(
+        print ("{linenum},{model},{Vf1mA:.3f},{N}".format(
             linenum=diode.linenum,
             model=diode.name,
             Vf1mA=Vf1mA,
