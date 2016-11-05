@@ -7,6 +7,8 @@ import argparse
 import re
 import collections
 import math
+import itertools
+import os
 
 parser = argparse.ArgumentParser(description='Create fourier tables out of a collection of fourier files')
 #parser.add_argument('models', nargs='+', help='The name(s) of the diode model(s) to make a test circuit for.')
@@ -52,7 +54,7 @@ class FourierAnalysis():
         SumMag2 = 0
         for i in range(2, k):
             SumMag2 += math.pow(self.harmonics[i].Magnitude, 2)
-        return math.sqrt(SumMag2) / self.harmonics[1].Magnitude
+        return 100 * math.sqrt(SumMag2) / self.harmonics[1].Magnitude
 
 def show_thds(filename):
     fa = FourierAnalysis(filename)
@@ -73,17 +75,25 @@ def flatten(positive, negative, four_folder, out_file):
         four_folder = four_folder,
         positive = positive,
         negative = negative)
+    if not os.path.exists(fourier_file):
+        return
     fa = FourierAnalysis (fourier_file)
     h = []
-    for k, v in fa.harmonics.items():
-        if k < 2:
-            continue
-        h.append("{0:9.7f}".format(v.NormMag))
-    out_file.write("{positive}, {negative}, {thd}, {harmonics}\n".format(
+    last = 0
+    for i in range(2, fa.n):
+        try:
+            thd = fa.harmonic_distortion(i)
+        except KeyError as e:
+            print (fourier_file)
+            print (e)
+            return
+        h.append("{0:.4f}".format(thd - last))
+        last = thd
+    out_file.write("{positive},{negative},{thd},{harmonics}\n".format(
         positive = positive,
         negative = negative,
         thd = fa.thd,
-        harmonics = ", ".join(h)
+        harmonics = ",".join(h)
         ))
     return
 
@@ -97,10 +107,13 @@ def main():
 
     with open(diode_list_file) as f:
         diode_list = f.read().splitlines()
-    
+    combo_list = [(i, i) for i in diode_list]
+    combo_list.extend(itertools.combinations(diode_list, 2))
+
     with open(out_file, "w") as four_table:
-        for diode in diode_list: # you could run combinations here
-            flatten(diode, diode, four_folder, four_table)
+        four_table.write("Positive,Negative,THD,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20\n")
+        for pd, nd in combo_list:
+            flatten(pd, nd, four_folder, four_table)
 
 if __name__ == '__main__':
     main()
