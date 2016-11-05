@@ -40,6 +40,17 @@ class FourierAnalysis():
         self.harmonics = collections.OrderedDict()
         for m in self.re_harmonic.finditer(buffer):
             self.harmonics[int(m.group('Harmonic'))] = Harmonic(m)
+        self.distortion = {}
+        last = 0
+        for i in range(2, self.n):
+            try:
+                thd = self.harmonic_distortion(i)
+            except KeyError as e:
+                print (self.filename)
+                print (e)
+                continue
+            self.distortion[i] = thd - last
+            last = thd
 
     def __repr__(self):
         return "FourierAnalysis({filename}): n={n} thd={thd}".format(**self.__dict__)
@@ -97,6 +108,21 @@ def flatten(positive, negative, four_folder, out_file):
         ))
     return
 
+def is_close(fa, m, n, ratio=2):
+    """
+    Is the percent harmonic distortion at m close to the percent harmonic distortion
+    at harmonic n?
+    Close is defined as (larger / smaller) < ratio
+    """
+    if m not in fa.distortion or n not in fa.distortion:
+        return False
+    if fa.distortion[m] == fa.distortion[n]:
+        return True
+    if fa.distortion[m] == 0 or fa.distortion[n] == 0:
+        return False
+    biggest = fa.distortion[m] / fa.distortion[n] if fa.distortion[m] > fa.distortion[n] else fa.distortion[n] / fa.distortion[m]
+    return biggest < ratio
+
 def main():
     #show_thds("testfile.four")
     
@@ -110,10 +136,22 @@ def main():
     combo_list = [(i, i) for i in diode_list]
     combo_list.extend(itertools.combinations(diode_list, 2))
 
+    fa = {}
+    for pd, nd in combo_list:
+        fourier_file = r"{four_folder}\{positive}__{negative}.four".format(
+            four_folder = four_folder,
+            positive = pd,
+            negative = nd)
+        if not os.path.exists(fourier_file):
+            continue
+        fa[(pd, nd)] = FourierAnalysis (fourier_file)
+    
+    close_2_3 = {k : v for k, v in fa.items() if is_close(v, 2, 3)}
+    
     with open(out_file, "w") as four_table:
         four_table.write("Positive,Negative,THD,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20\n")
-        for pd, nd in combo_list:
-            flatten(pd, nd, four_folder, four_table)
+        for (dp, dn), v in close_2_3.items():
+            flatten(dp, dn, four_folder, four_table)
 
 if __name__ == '__main__':
     main()
